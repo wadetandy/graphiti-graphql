@@ -25,7 +25,12 @@ module Graphiti
         @schema.add_entrypoint(name.pluralize, index_resource, false) if index_resource
       end
 
+      def raw(&block)
+        @schema.add_raw_block(block)
+      end
+
       private
+
       def infer_resource(name)
         inferred_name = "#{name.singularize.classify}Resource"
         inferred_name.safe_constantize.tap do |resource_class|

@@ -119,5 +119,25 @@ RSpec.describe Graphiti::Graphql::SchemaBuilder do
         end
       end
     end
+
+    describe '#raw' do
+      let(:builder_block) do
+        block = raw_block
+
+        Proc.new do
+          raw(&block)
+        end
+      end
+
+      let(:raw_block) do
+        Proc.new do
+          mutate(Foo)
+        end
+      end
+
+      it 'Adds the raw block to the schema definition' do
+        expect(schema.raw_blocks).to eq [raw_block]
+      end
+    end
   end
 end
