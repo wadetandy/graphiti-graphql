@@ -1,5 +1,8 @@
 require "bundler/setup"
-require "graphiti/graphql"
+require "pry"
+require "graphiti-graphql"
+
+require_relative './support/domain_fixtures'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
