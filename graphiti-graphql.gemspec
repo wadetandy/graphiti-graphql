@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'graphiti'
   spec.add_dependency 'graphql'
+  spec.add_dependency 'graphql-batch'
   spec.add_dependency "activesupport"
 
   spec.add_development_dependency "bundler", "~> 1.16"

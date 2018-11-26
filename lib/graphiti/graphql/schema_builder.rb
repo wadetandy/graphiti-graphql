@@ -1,12 +1,13 @@
 module Graphiti
   module Graphql
     class SchemaBuilder
-      def self.build(&block)
-        new.build(&block).generate_schema
+      def self.build(base_type: ::GraphQL::Schema::Object, &block)
+
+        new.build(base_type, &block).generate_schema
       end
 
-      def build(&block)
-        @schema = Graphiti::Graphql::Schema.new
+      def build(base_type, &block)
+        @schema = Graphiti::Graphql::Schema.new(base_type)
         instance_eval(&block)
         @schema.tap do
           @schema = nil
