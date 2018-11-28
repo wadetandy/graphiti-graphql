@@ -105,12 +105,6 @@ module Graphiti
             end
 
             resolve -> (obj, args, ctx) {
-              if sideload.type == :belongs_to
-                attribute = sideload.primary_key
-              else
-                attribute = sideload.foreign_key
-              end
-
               params = {}
 
               args.keys.each do |arg|
@@ -123,7 +117,7 @@ module Graphiti
                 params[:filter][filter][operator] = val
               end
 
-              loader.for(sideload, attribute, params: params, single: is_single).load(is_entrypoint ? :entry : obj)
+              loader.for(sideload, params: params, single: is_single).load(is_entrypoint ? :entry : obj)
             }
           end
 
