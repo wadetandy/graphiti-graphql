@@ -7,6 +7,28 @@ module Graphiti
         @query_entrypoints = {}
         @raw_blocks = []
         @base_type = base_type
+
+        # Anonymous resource class where every supported query is a sideload
+        @query_resource = Class.new(Graphiti::Resource) do
+          self.adapter = Graphiti::Adapters::Null
+          self.type = :query
+          self.model = OpenStruct
+
+          attribute :id, :integer_id, readable: false
+
+          def self.name
+            'Graphiti::Graphql::QueryResource'
+          end
+
+          def base_scope
+            {}
+          end
+
+          def resolve(_)
+            binding.pry
+            [OpenStruct.new(id: SecureRandom.uuid)]
+          end
+        end
       end
 
       def add_entrypoint(query, resource, singular)
@@ -14,6 +36,20 @@ module Graphiti
           resource: resource,
           singular: singular
         }
+
+        sideload_klass = singular ?
+          Graphiti::Graphql::Sideload::SingleEntrypoint :
+          Graphiti::Graphql::Sideload::ListEntrypoint
+
+        @query_resource.instance_eval do
+          allow_sideload query, class: sideload_klass do
+            params { |h| h.delete(:filter) }
+
+            assign do |dummies, results|
+              dummies.first.send("#{query}=", results)
+            end
+          end
+        end
       end
 
       def add_raw_block(block)
@@ -21,7 +57,9 @@ module Graphiti
       end
 
       def generate_schema
-        query_type = build_query_type
+        generator = TypeGenerator.new(@base_type)
+        # query_type = build_query_type
+        query_type = generator.add_resource(@query_resource)
         raw = raw_blocks
 
         Class.new(GraphQL::Schema) do

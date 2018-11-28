@@ -1,12 +1,11 @@
 module Graphiti::Graphql::BatchLoader
   class SingleItemLoader < BaseLoader
-    def perform(ids)
-      Graphiti.with_context(@context) do
-        records = @resource.all({@filter_attribute => ids}).data
+    def assign(parent_records, records)
+      map = records.group_by(&sideload.foreign_key)
 
-        records.each { |record| fulfill(record.id, record) }
-        # If a record wasnt found, fulfill with nil:
-        ids.each { |id| fulfill(id, nil) unless fulfilled?(id) }
+      parent_records.each do |parent_record|
+        matching = map[parent_record.send(sideload.primary_key)] || []
+        fulfill(parent_record, matching.first)
       end
     end
   end
